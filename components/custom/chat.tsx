@@ -1,16 +1,14 @@
-'use client';
+"use client";
 
-import { Attachment, Message } from 'ai';
-import { useChat } from 'ai/react';
-import { useState } from 'react';
+import { Attachment, Message } from "ai";
+import { useChat } from "ai/react";
+import { useState } from "react";
 
-import { Message as PreviewMessage } from '@/components/custom/message';
-import { useScrollToBottom } from '@/components/custom/use-scroll-to-bottom';
-import { cn } from '@/lib/utils';
+import { Message as PreviewMessage } from "@/components/custom/message";
+import { useScrollToBottom } from "@/components/custom/use-scroll-to-bottom";
 
-import { MultimodalInput } from './multimodal-input';
-import { Overview } from './overview';
-import { useSidebar } from '../ui/sidebar';
+import { MultimodalInput } from "./multimodal-input";
+import { Overview } from "./overview";
 
 export function Chat({
   id,
@@ -24,10 +22,9 @@ export function Chat({
       body: { id },
       initialMessages,
       onFinish: () => {
-        window.history.replaceState({}, '', `/chat/${id}`);
+        window.history.replaceState({}, "", `/chat/${id}`);
       },
     });
-  const { open } = useSidebar();
 
   const [messagesContainerRef, messagesEndRef] =
     useScrollToBottom<HTMLDivElement>();
@@ -39,11 +36,7 @@ export function Chat({
       <div className="flex flex-col justify-between items-center gap-4">
         <div
           ref={messagesContainerRef}
-          className={cn(
-            'flex flex-col gap-4 h-full items-center overflow-y-scroll',
-            open && 'w-[calc(100dvw-var(--sidebar-width))]',
-            !open && 'w-dvw'
-          )}
+          className="flex flex-col gap-4 h-full w-dvw items-center overflow-y-scroll"
         >
           {messages.length === 0 && <Overview />}
 
