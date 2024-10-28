@@ -1,6 +1,8 @@
 import { Metadata } from 'next';
+import NextTopLoader from 'nextjs-toploader';
 import { Toaster } from 'sonner';
 
+import { ReactQueryProvider } from '@/components/custom/query-provider'; // Import the ReactQueryProvider
 import { ThemeProvider } from '@/components/custom/theme-provider';
 
 import './globals.css';
@@ -57,15 +59,18 @@ export default async function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Toaster position="top-center" />
-          {children}
-        </ThemeProvider>
+        <NextTopLoader />
+        <ReactQueryProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Toaster position="top-center" />
+            {children}
+          </ThemeProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );
