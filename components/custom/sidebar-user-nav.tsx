@@ -21,6 +21,7 @@ import {
 
 export function SidebarUserNav({ user }: { user: User }) {
   const { setTheme, theme } = useTheme();
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -43,6 +44,7 @@ export function SidebarUserNav({ user }: { user: User }) {
             className="w-[--radix-popper-anchor-width]"
           >
             <DropdownMenuItem
+              className="cursor-pointer"
               onSelect={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             >
               {theme === 'light' ? (
@@ -61,7 +63,7 @@ export function SidebarUserNav({ user }: { user: User }) {
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <button
-                className="w-full "
+                className="w-full cursor-pointer"
                 onClick={() => {
                   signOut({
                     redirectTo: '/',
