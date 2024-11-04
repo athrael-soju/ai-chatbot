@@ -16,12 +16,15 @@ import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
   CardDescription,
   CardFooter,
+  CardHeader,
+  CardTitle,
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+
+import { Configuration } from './configuration';
+import { Knowledgebase } from './knowledgebase';
 
 export default function Component() {
   const router = useRouter();
@@ -32,6 +35,10 @@ export default function Component() {
   const [progress, setProgress] = useState(0);
   const [showChatButton, setShowChatButton] = useState(false);
   const [showSteps, setShowSteps] = useState(true);
+  const [showConfigurationCarousel, setShowConfigurationCarousel] =
+    useState(false);
+  const [showKnowledgebaseCarousel, setShowKnowledgebaseCarousel] =
+    useState(false);
 
   // Setup steps
   const setupSteps = [
@@ -43,7 +50,7 @@ export default function Component() {
       disabled: false,
     },
     {
-      title: 'knowledgebase',
+      title: 'Knowledgebase',
       icon: Anvil,
       route: '/knowledgebase',
       isComplete: isKnowledgebaseComplete,
@@ -79,7 +86,23 @@ export default function Component() {
   ]);
 
   const handleRouteNavigation = (route: string) => {
-    router.push(route);
+    if (route === '/configuration') {
+      setShowConfigurationCarousel(true);
+    } else if (route === '/knowledgebase') {
+      setShowKnowledgebaseCarousel(true);
+    } else {
+      router.push(route);
+    }
+  };
+
+  const handleCloseConfigurationCarousel = () => {
+    setShowConfigurationCarousel(false);
+    setIsConfigurationComplete(true);
+  };
+
+  const handleCloseKnowledgebaseCarousel = () => {
+    setShowKnowledgebaseCarousel(false);
+    setIsKnowledgebaseComplete(true);
   };
 
   return (
@@ -167,7 +190,7 @@ export default function Component() {
             variant="ghost"
             onClick={() => setIsKnowledgebaseComplete(true)}
           >
-            Simulate knowledgebase Completion
+            Simulate Knowledgebase Completion
           </Button>
           <Button
             variant="ghost"
@@ -177,6 +200,18 @@ export default function Component() {
           </Button>
         </CardFooter>
       </Card>
+
+      <AnimatePresence>
+        {showConfigurationCarousel && (
+          <Configuration onClose={handleCloseConfigurationCarousel} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showKnowledgebaseCarousel && (
+          <Knowledgebase onClose={handleCloseKnowledgebaseCarousel} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
