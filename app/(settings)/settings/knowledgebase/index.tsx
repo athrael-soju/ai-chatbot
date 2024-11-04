@@ -1,19 +1,6 @@
-'use client';
-
-import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Upload,
-  Trash2,
-  RefreshCw,
-  ArrowUpDown,
-  Search,
-  ArrowLeft,
-  CheckCircle,
-  XCircle,
-  Clock,
-} from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -24,22 +11,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Progress } from '@/components/ui/progress';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+
+import { FileTable } from './FileTable';
+import { FileUploader } from './FileUploader';
+import { SearchBar } from './SearchBar';
 
 interface File {
   id: string;
@@ -51,13 +26,11 @@ interface File {
   progress: number;
 }
 
-interface KnowledgebaseCarouselProps {
+interface KnowledgebaseProps {
   onClose: () => void;
 }
 
-export function Knowledgebase({ onClose }: KnowledgebaseCarouselProps) {
-  const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+export function Knowledgebase({ onClose }: KnowledgebaseProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortColumn, setSortColumn] = useState<keyof File>('uploadDate');
@@ -175,48 +148,6 @@ export function Knowledgebase({ onClose }: KnowledgebaseCarouselProps) {
     file.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  const getStatusIcon = (status: File['status'], progress: number) => {
-    switch (status) {
-      case 'uploading':
-      case 'processing':
-        return (
-          <div className="relative size-5">
-            <Clock className="size-5 text-blue-500 animate-pulse" />
-            <svg className="absolute top-0 left-0 size-5">
-              <circle
-                cx="10"
-                cy="10"
-                r="8"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeDasharray={50}
-                strokeDashoffset={50 - progress / 2}
-                className="text-blue-500"
-                transform="rotate(-90 10 10)"
-              />
-            </svg>
-          </div>
-        );
-      case 'uploaded':
-        return <Clock className="size-5 text-gray-500" />;
-      case 'processed':
-        return <CheckCircle className="size-5 text-green-500" />;
-      case 'error':
-        return <XCircle className="size-5 text-red-500" />;
-      default:
-        return null;
-    }
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -234,28 +165,16 @@ export function Knowledgebase({ onClose }: KnowledgebaseCarouselProps) {
         <CardContent>
           <div className="flex justify-between items-center mb-4">
             <div className="flex-1 mr-4">
-              <Input
-                type="text"
-                placeholder="Search files..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+              <SearchBar
+                searchTerm={searchTerm}
+                onSearchTermChange={setSearchTerm}
               />
             </div>
             <div className="flex space-x-2">
-              <input
-                type="file"
-                ref={fileInputRef}
-                className="hidden"
-                onChange={handleFileUpload}
-                multiple
+              <FileUploader
+                onFileUpload={handleFileUpload}
+                isUploading={isUploading}
               />
-              <Button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
-              >
-                <Upload className="mr-2 size-4" />
-                Upload Files
-              </Button>
               <Button
                 variant="outline"
                 onClick={onClose}
@@ -266,104 +185,14 @@ export function Knowledgebase({ onClose }: KnowledgebaseCarouselProps) {
               </Button>
             </div>
           </div>
-
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead
-                  onClick={() => handleSort('name')}
-                  className="cursor-pointer"
-                >
-                  Name <ArrowUpDown className="inline-block size-4 ml-1" />
-                </TableHead>
-                <TableHead
-                  onClick={() => handleSort('size')}
-                  className="cursor-pointer"
-                >
-                  Size <ArrowUpDown className="inline-block size-4 ml-1" />
-                </TableHead>
-                <TableHead
-                  onClick={() => handleSort('type')}
-                  className="cursor-pointer"
-                >
-                  Type <ArrowUpDown className="inline-block size-4 ml-1" />
-                </TableHead>
-                <TableHead
-                  onClick={() => handleSort('uploadDate')}
-                  className="cursor-pointer"
-                >
-                  Upload Date{' '}
-                  <ArrowUpDown className="inline-block size-4 ml-1" />
-                </TableHead>
-                <TableHead
-                  onClick={() => handleSort('status')}
-                  className="cursor-pointer"
-                >
-                  Status <ArrowUpDown className="inline-block size-4 ml-1" />
-                </TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <AnimatePresence>
-                {filteredFiles.map((file) => (
-                  <motion.tr
-                    key={file.id}
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <TableCell>{file.name}</TableCell>
-                    <TableCell>{formatFileSize(file.size)}</TableCell>
-                    <TableCell>{file.type}</TableCell>
-                    <TableCell>{file.uploadDate.toLocaleString()}</TableCell>
-                    <TableCell>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <div className="flex items-center space-x-2">
-                              {getStatusIcon(file.status, file.progress)}
-                              <span className="capitalize">{file.status}</span>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {file.status === 'uploading' ||
-                            file.status === 'processing'
-                              ? `${file.progress}% complete`
-                              : `${file.status.charAt(0).toUpperCase() + file.status.slice(1)}`}
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleProcessFile(file.id)}
-                          disabled={file.status !== 'uploaded'}
-                        >
-                          <RefreshCw className="size-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDeleteFile(file.id)}
-                          disabled={
-                            file.status === 'uploading' ||
-                            file.status === 'processing'
-                          }
-                        >
-                          <Trash2 className="size-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </motion.tr>
-                ))}
-              </AnimatePresence>
-            </TableBody>
-          </Table>
+          <FileTable
+            files={filteredFiles}
+            sortColumn={sortColumn}
+            sortDirection={sortDirection}
+            onSort={handleSort}
+            onProcessFile={handleProcessFile}
+            onDeleteFile={handleDeleteFile}
+          />
         </CardContent>
         <CardFooter>
           <div>{files.length} file(s) uploaded</div>
