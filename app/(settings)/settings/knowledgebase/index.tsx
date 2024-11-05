@@ -404,9 +404,54 @@ export function Knowledgebase({ onClose }: KnowledgebaseProps) {
                 </motion.tr>
               ))}
               {Array.from({ length: emptyRowsCount }).map((_, index) => (
-                <TableRow key={`empty-row-${index}`}>
-                  <TableCell colSpan={6}>&nbsp;</TableCell>
-                </TableRow>
+                <motion.tr
+                  key={`empty-row-${index}`}
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <TableCell className="font-medium">
+                    {/* Empty content, but same structure */}
+                    <span className="invisible">Placeholder</span>
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    <span className="invisible">Placeholder</span>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <span className="invisible">Placeholder</span>
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    <span className="invisible">Placeholder</span>
+                  </TableCell>
+                  <TableCell className="w-36 text-center">
+                    <div className="flex items-center space-x-2">
+                      {/* Use invisible icons to maintain height */}
+                      <Clock className="size-5 invisible" />
+                      <span className="invisible">Placeholder</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        disabled
+                        className="invisible"
+                      >
+                        <RefreshCw className="size-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        disabled
+                        className="invisible"
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </motion.tr>
               ))}
             </TableBody>
           </Table>
