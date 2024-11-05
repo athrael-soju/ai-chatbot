@@ -1,5 +1,6 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft,
@@ -10,7 +11,9 @@ import {
   Settings,
   Zap,
 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -75,46 +78,41 @@ interface ConfigurationCarouselProps {
   onClose: () => void;
 }
 
+const configurationSchema = z.object({
+  processing: z.string().nonempty({ message: 'Processing is required' }),
+  vectorDB: z.string().nonempty({ message: 'Vector DB is required' }),
+  reranking: z.string().nonempty({ message: 'Reranking is required' }),
+  embedding: z.string().nonempty({ message: 'Embedding is required' }),
+  parameter1: z.string().nonempty({ message: 'Parameter1 is required' }),
+  parameter2: z.string().nonempty({ message: 'Parameter2 is required' }),
+  chunkSize: z.string().nonempty({ message: 'Chunk size is required' }),
+  overlap: z.string().nonempty({ message: 'Overlap is required' }),
+  method: z.string().nonempty({ message: 'Method is required' }),
+  topK: z.string().nonempty({ message: 'TopK is required' }),
+});
+
 export function Configuration({ onClose }: ConfigurationCarouselProps) {
   const [currentStep, setCurrentStep] = useState(0);
-  const [stepSelections, setStepSelections] = useState<
-    Record<string, Record<string, string>>
-  >({});
   const [visitedSteps, setVisitedSteps] = useState<number[]>([0]);
   const [isSetupCompleted, setIsSetupCompleted] = useState(false);
 
-  useEffect(() => {
-    // Initialize stepSelections with empty objects for each step
-    setStepSelections(
-      steps.reduce(
-        (acc, _, index) => {
-          acc[index] = {};
-          return acc;
-        },
-        {} as Record<string, Record<string, string>>
-      )
-    );
-  }, []);
+  const { control, handleSubmit, formState, getValues, trigger } = useForm({
+    resolver: zodResolver(configurationSchema),
+    mode: 'onChange',
+  });
 
-  const handleSelection = (step: number, key: string, value: string) => {
-    setStepSelections((prev) => ({
-      ...prev,
-      [step]: { ...prev[step], [key]: value },
-    }));
-  };
+  const handleNextStep = async () => {
+    const fields = Object.keys(steps[currentStep].options);
+    const isValid = await trigger(fields);
 
-  const isStepComplete = (step: number) => {
-    const selections = stepSelections[step] || {};
-    return Object.keys(steps[step].options).every((key) => selections[key]);
-  };
-
-  const handleNextStep = () => {
-    if (currentStep < steps.length - 1) {
-      const nextStep = currentStep + 1;
-      setCurrentStep(nextStep);
-      setVisitedSteps((prev) => [...new Set([...prev, nextStep])]);
-    } else if (isStepComplete(currentStep)) {
-      setIsSetupCompleted(true);
+    if (isValid) {
+      if (currentStep < steps.length - 1) {
+        const nextStep = currentStep + 1;
+        setCurrentStep(nextStep);
+        setVisitedSteps((prev) => [...new Set([...prev, nextStep])]);
+      } else {
+        setIsSetupCompleted(true);
+      }
     }
   };
 
@@ -122,6 +120,12 @@ export function Configuration({ onClose }: ConfigurationCarouselProps) {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
+  };
+
+  const isStepComplete = (step: number) => {
+    const fields = Object.keys(steps[step].options);
+    const values = getValues();
+    return fields.every((key) => values[key]);
   };
 
   const allStepsCompleted = steps.every((_, index) => isStepComplete(index));
@@ -200,23 +204,33 @@ export function Configuration({ onClose }: ConfigurationCarouselProps) {
                         >
                           {key.charAt(0).toUpperCase() + key.slice(1)}
                         </label>
-                        <Select
-                          onValueChange={(value) =>
-                            handleSelection(currentStep, key, value)
-                          }
-                          value={stepSelections[currentStep]?.[key] || ''}
-                        >
-                          <SelectTrigger id={key}>
-                            <SelectValue placeholder={`Select ${key}`} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {options.map((option: string) => (
-                              <SelectItem key={option} value={option}>
-                                {option}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Controller
+                          name={key}
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              onValueChange={(value) => field.onChange(value)}
+                              value={field.value || ''}
+                            >
+                              <SelectTrigger id={key}>
+                                <SelectValue placeholder={`Select ${key}`} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {options.map((option: string) => (
+                                  <SelectItem key={option} value={option}>
+                                    {option}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
+                        {formState.errors[key] && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {formState.errors[key] &&
+                              String(formState.errors[key].message)}
+                          </p>
+                        )}
                       </div>
                     )
                   )}
@@ -230,10 +244,7 @@ export function Configuration({ onClose }: ConfigurationCarouselProps) {
                     <ArrowLeft className="mr-2 size-4" />
                     Previous
                   </Button>
-                  <Button
-                    onClick={handleNextStep}
-                    disabled={!isStepComplete(currentStep)}
-                  >
+                  <Button onClick={handleNextStep}>
                     {currentStep === steps.length - 1 ? 'Complete' : 'Next'}
                     {currentStep === steps.length - 1 ? (
                       <Check className="ml-2 size-4" />
