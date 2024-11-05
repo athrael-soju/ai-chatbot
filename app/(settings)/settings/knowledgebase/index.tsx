@@ -186,6 +186,8 @@ export function Knowledgebase({ onClose }: KnowledgebaseProps) {
     currentPage * filesPerPage
   );
 
+  const emptyRowsCount = Math.max(0, filesPerPage - paginatedFiles.length);
+
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -317,99 +319,97 @@ export function Knowledgebase({ onClose }: KnowledgebaseProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedFiles.length > 0 ? (
-                paginatedFiles.map((file) => (
-                  <motion.tr
-                    key={file.id}
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.98 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <TableCell className="font-medium">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger className="truncate max-w-[150px] block">
-                            {file.name}
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <span>{file.name}</span>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      {formatFileSize(file.size)}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger className="truncate max-w-[100px] block">
-                            {file.type.length > 10
-                              ? `${file.type.slice(0, 10)}…`
-                              : file.type}
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <span>{file.type}</span>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      {file.uploadDate.toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <div className="flex items-center space-x-2">
-                              {getStatusIcon(file.status, file.progress)}
-                              <span className="capitalize hidden sm:inline">
-                                {file.status}
-                              </span>
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {file.status === 'uploading' ||
-                            file.status === 'processing'
-                              ? `${file.progress}% complete`
-                              : `${file.status.charAt(0).toUpperCase() + file.status.slice(1)}`}
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          onClick={() => handleProcessFile(file.id)}
-                          disabled={file.status !== 'uploaded'}
-                        >
-                          <RefreshCw className="size-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          onClick={() => handleDeleteFile(file.id)}
-                          disabled={
-                            file.status === 'uploading' ||
-                            file.status === 'processing'
-                          }
-                        >
-                          <Trash2 className="size-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </motion.tr>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center">
-                    No files available
+              {paginatedFiles.map((file) => (
+                <motion.tr
+                  key={file.id}
+                  initial={{ opacity: 0, scale: 0.98 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.98 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <TableCell className="font-medium">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger className="truncate max-w-[150px] block">
+                          {file.name}
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <span>{file.name}</span>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    {formatFileSize(file.size)}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger className="truncate max-w-[100px] block">
+                          {file.type.length > 10
+                            ? `${file.type.slice(0, 10)}…`
+                            : file.type}
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <span>{file.type}</span>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    {file.uploadDate.toLocaleString()}
+                  </TableCell>
+                  <TableCell className="w-36 text-center">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <div className="flex items-center space-x-2">
+                            {getStatusIcon(file.status, file.progress)}
+                            <span className="capitalize hidden sm:inline">
+                              {file.status}
+                            </span>
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          {file.status === 'uploading' ||
+                          file.status === 'processing'
+                            ? `${file.progress}% complete`
+                            : `${file.status.charAt(0).toUpperCase() + file.status.slice(1)}`}
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </TableCell>
+
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={() => handleProcessFile(file.id)}
+                        disabled={file.status !== 'uploaded'}
+                      >
+                        <RefreshCw className="size-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={() => handleDeleteFile(file.id)}
+                        disabled={
+                          file.status === 'uploading' ||
+                          file.status === 'processing'
+                        }
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </motion.tr>
+              ))}
+              {Array.from({ length: emptyRowsCount }).map((_, index) => (
+                <TableRow key={`empty-row-${index}`}>
+                  <TableCell colSpan={6}>&nbsp;</TableCell>
                 </TableRow>
-              )}
+              ))}
             </TableBody>
           </Table>
         </CardContent>
