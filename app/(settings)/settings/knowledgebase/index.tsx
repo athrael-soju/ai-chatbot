@@ -237,7 +237,7 @@ export function Knowledgebase({ onClose }: KnowledgebaseProps) {
       exit={{ opacity: 0 }}
       className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4 z-50"
     >
-      <Card className="w-full max-w-4xl mx-auto">
+      <Card className="w-full max-w-5xl mx-auto">
         <CardHeader>
           <CardTitle>File Management</CardTitle>
           <CardDescription>
@@ -330,7 +330,7 @@ export function Knowledgebase({ onClose }: KnowledgebaseProps) {
                   <TableCell className="font-medium">
                     <TooltipProvider>
                       <Tooltip>
-                        <TooltipTrigger className="truncate max-w-[150px] block">
+                        <TooltipTrigger className="truncate max-w-[200px] block">
                           {file.name}
                         </TooltipTrigger>
                         <TooltipContent>
@@ -345,7 +345,7 @@ export function Knowledgebase({ onClose }: KnowledgebaseProps) {
                   <TableCell className="hidden md:table-cell">
                     <TooltipProvider>
                       <Tooltip>
-                        <TooltipTrigger className="truncate max-w-[100px] block">
+                        <TooltipTrigger className="truncate max-w-[150px] block">
                           {file.type.length > 10
                             ? `${file.type.slice(0, 10)}…`
                             : file.type}
@@ -362,14 +362,12 @@ export function Knowledgebase({ onClose }: KnowledgebaseProps) {
                   <TableCell className="w-36 text-center">
                     <TooltipProvider>
                       <Tooltip>
-                        <TooltipTrigger>
-                          <div className="flex items-center space-x-2">
-                            {getStatusIcon(file.status, file.progress)}
-                            <span className="capitalize hidden sm:inline">
-                              {file.status}
-                            </span>
-                          </div>
-                        </TooltipTrigger>
+                        <div className="flex items-center space-x-2">
+                          {getStatusIcon(file.status, file.progress)}
+                          <span className="capitalize hidden sm:inline">
+                            {file.status}
+                          </span>
+                        </div>
                         <TooltipContent>
                           {file.status === 'uploading' ||
                           file.status === 'processing'
