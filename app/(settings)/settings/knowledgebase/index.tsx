@@ -177,7 +177,10 @@ export function Knowledgebase({ onClose }: KnowledgebaseProps) {
     file.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const totalPages = Math.ceil(filteredFiles.length / filesPerPage);
+  const totalPages =
+    filteredFiles.length > 0
+      ? Math.ceil(filteredFiles.length / filesPerPage)
+      : 0;
   const paginatedFiles = filteredFiles.slice(
     (currentPage - 1) * filesPerPage,
     currentPage * filesPerPage
@@ -314,13 +317,13 @@ export function Knowledgebase({ onClose }: KnowledgebaseProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              <AnimatePresence>
-                {paginatedFiles.map((file) => (
+              {paginatedFiles.length > 0 ? (
+                paginatedFiles.map((file) => (
                   <motion.tr
                     key={file.id}
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.98 }}
                     transition={{ duration: 0.2 }}
                   >
                     <TableCell className="font-medium">
@@ -339,7 +342,18 @@ export function Knowledgebase({ onClose }: KnowledgebaseProps) {
                       {formatFileSize(file.size)}
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
-                      {file.type}
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger className="truncate max-w-[100px] block">
+                            {file.type.length > 10
+                              ? `${file.type.slice(0, 10)}…`
+                              : file.type}
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <span>{file.type}</span>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
                       {file.uploadDate.toLocaleString()}
@@ -388,36 +402,44 @@ export function Knowledgebase({ onClose }: KnowledgebaseProps) {
                       </div>
                     </TableCell>
                   </motion.tr>
-                ))}
-              </AnimatePresence>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center">
+                    No files available
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
         <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <div>{files.length} file(s) uploaded</div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              <ChevronLeft className="size-4" />
-            </Button>
-            <span>
-              Page {currentPage} of {totalPages}
-            </span>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-            >
-              <ChevronRight className="size-4" />
-            </Button>
-          </div>
+          {totalPages > 0 && (
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="size-4" />
+              </Button>
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+              >
+                <ChevronRight className="size-4" />
+              </Button>
+            </div>
+          )}
         </CardFooter>
       </Card>
     </motion.div>
