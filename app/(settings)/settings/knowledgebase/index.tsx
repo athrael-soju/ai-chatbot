@@ -26,6 +26,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 import {
   Table,
   TableBody,
@@ -239,8 +240,8 @@ export function Knowledgebase({ onClose }: KnowledgebaseProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex-1 mr-4">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+            <div className="w-full md:w-1/2">
               <Input
                 type="text"
                 placeholder="Search files..."
@@ -249,7 +250,7 @@ export function Knowledgebase({ onClose }: KnowledgebaseProps) {
                 className="w-full"
               />
             </div>
-            <div className="flex space-x-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="file"
                 ref={fileInputRef}
@@ -267,7 +268,7 @@ export function Knowledgebase({ onClose }: KnowledgebaseProps) {
               <Button
                 variant="outline"
                 onClick={onClose}
-                disabled={!canReturnToSettings}
+                disabled={files.length > 0 && !canReturnToSettings}
               >
                 <ArrowLeft className="mr-2 size-4" />
                 Return to Settings
@@ -275,136 +276,129 @@ export function Knowledgebase({ onClose }: KnowledgebaseProps) {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead
-                    onClick={() => handleSort('name')}
-                    className="cursor-pointer"
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead
+                  onClick={() => handleSort('name')}
+                  className="cursor-pointer"
+                >
+                  Name <ArrowUpDown className="inline-block size-4 ml-1" />
+                </TableHead>
+                <TableHead
+                  onClick={() => handleSort('size')}
+                  className="cursor-pointer hidden sm:table-cell"
+                >
+                  Size <ArrowUpDown className="inline-block size-4 ml-1" />
+                </TableHead>
+                <TableHead
+                  onClick={() => handleSort('type')}
+                  className="cursor-pointer hidden md:table-cell"
+                >
+                  Type <ArrowUpDown className="inline-block size-4 ml-1" />
+                </TableHead>
+                <TableHead
+                  onClick={() => handleSort('uploadDate')}
+                  className="cursor-pointer hidden lg:table-cell"
+                >
+                  Upload Date{' '}
+                  <ArrowUpDown className="inline-block size-4 ml-1" />
+                </TableHead>
+                <TableHead
+                  onClick={() => handleSort('status')}
+                  className="cursor-pointer"
+                >
+                  Status <ArrowUpDown className="inline-block size-4 ml-1" />
+                </TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <AnimatePresence>
+                {paginatedFiles.map((file) => (
+                  <motion.tr
+                    key={file.id}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
                   >
-                    Name <ArrowUpDown className="inline-block size-4 ml-1" />
-                  </TableHead>
-                  <TableHead
-                    onClick={() => handleSort('size')}
-                    className="cursor-pointer"
-                  >
-                    Size <ArrowUpDown className="inline-block size-4 ml-1" />
-                  </TableHead>
-                  <TableHead
-                    onClick={() => handleSort('type')}
-                    className="cursor-pointer"
-                  >
-                    Type <ArrowUpDown className="inline-block size-4 ml-1" />
-                  </TableHead>
-                  <TableHead
-                    onClick={() => handleSort('uploadDate')}
-                    className="cursor-pointer"
-                  >
-                    Upload Date{' '}
-                    <ArrowUpDown className="inline-block size-4 ml-1" />
-                  </TableHead>
-                  <TableHead
-                    onClick={() => handleSort('status')}
-                    className="cursor-pointer"
-                  >
-                    Status <ArrowUpDown className="inline-block size-4 ml-1" />
-                  </TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <AnimatePresence>
-                  {paginatedFiles.map((file) => (
-                    <motion.tr
-                      key={file.id}
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <TableCell className="w-48">
-                        <TooltipProvider>
-                          <Tooltip>
-
-                            <TooltipContent>
-                              <span>{file.name}</span>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </TableCell>
-                      <TableCell className="w-24 truncate">
-                        {formatFileSize(file.size)}
-                      </TableCell>
-                      <TableCell className="w-24 truncate">
-                        {file.type}
-                      </TableCell>
-                      <TableCell className="w-32 truncate">
-                        {file.uploadDate.toLocaleString()}
-                      </TableCell>
-                      <TableCell className="w-32 truncate">
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <div className="flex items-center space-x-2">
-                                {getStatusIcon(file.status, file.progress)}
-                                <span className="capitalize">
-                                  {file.status}
-                                </span>
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              {file.status === 'uploading' ||
-                              file.status === 'processing'
-                                ? `${file.progress}% complete`
-                                : `${file.status.charAt(0).toUpperCase() + file.status.slice(1)}`}
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </TableCell>
-                      <TableCell className="w-32">
-                        <div className="flex space-x-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleProcessFile(file.id)}
-                            disabled={file.status !== 'uploaded'}
-                          >
-                            <RefreshCw className="size-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDeleteFile(file.id)}
-                            disabled={
-                              file.status === 'uploading' ||
-                              file.status === 'processing'
-                            }
-                          >
-                            <Trash2 className="size-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </motion.tr>
-                  ))}
-                  {Array.from({
-                    length: Math.max(0, 5 - paginatedFiles.length),
-                  }).map((_, index) => (
-                    <TableRow key={`empty-row-${index}`} className="h-12">
-                      <TableCell colSpan={6}></TableCell>
-                    </TableRow>
-                  ))}
-                </AnimatePresence>
-              </TableBody>
-            </Table>
-          </div>
+                    <TableCell className="font-medium">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger className="truncate max-w-[150px] block">
+                            {file.name}
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <span>{file.name}</span>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      {formatFileSize(file.size)}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {file.type}
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell">
+                      {file.uploadDate.toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <div className="flex items-center space-x-2">
+                              {getStatusIcon(file.status, file.progress)}
+                              <span className="capitalize hidden sm:inline">
+                                {file.status}
+                              </span>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {file.status === 'uploading' ||
+                            file.status === 'processing'
+                              ? `${file.progress}% complete`
+                              : `${file.status.charAt(0).toUpperCase() + file.status.slice(1)}`}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() => handleProcessFile(file.id)}
+                          disabled={file.status !== 'uploaded'}
+                        >
+                          <RefreshCw className="size-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() => handleDeleteFile(file.id)}
+                          disabled={
+                            file.status === 'uploading' ||
+                            file.status === 'processing'
+                          }
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </motion.tr>
+                ))}
+              </AnimatePresence>
+            </TableBody>
+          </Table>
         </CardContent>
-        <CardFooter className="flex justify-between items-center">
+        <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <div>{files.length} file(s) uploaded</div>
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"
-              size="sm"
+              size="icon"
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
             >
@@ -415,7 +409,7 @@ export function Knowledgebase({ onClose }: KnowledgebaseProps) {
             </span>
             <Button
               variant="outline"
-              size="sm"
+              size="icon"
               onClick={() =>
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
