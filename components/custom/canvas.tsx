@@ -429,7 +429,9 @@ export function Canvas({
                     }
                   )}`}
                 </div>
-              ) : null}
+              ) : (
+                <div className="w-32 h-3 mt-2 bg-muted-foreground/20 rounded-md animate-pulse" />
+              )}
             </div>
           </div>
 
@@ -443,6 +445,7 @@ export function Canvas({
                     copyToClipboard(canvas.content);
                     toast.success('Copied to clipboard!');
                   }}
+                  disabled={canvas.status === 'streaming'}
                 >
                   <CopyIcon size={18} />
                 </Button>
@@ -457,7 +460,9 @@ export function Canvas({
                   onClick={() => {
                     handleVersionChange('prev');
                   }}
-                  disabled={currentVersionIndex === 0}
+                  disabled={
+                    currentVersionIndex === 0 || canvas.status === 'streaming'
+                  }
                 >
                   <UndoIcon size={18} />
                 </Button>
@@ -472,7 +477,7 @@ export function Canvas({
                   onClick={() => {
                     handleVersionChange('next');
                   }}
-                  disabled={isCurrentVersion}
+                  disabled={isCurrentVersion || canvas.status === 'streaming'}
                 >
                   <RedoIcon size={18} />
                 </Button>
@@ -483,12 +488,18 @@ export function Canvas({
               <TooltipTrigger asChild>
                 <Button
                   variant="outline"
-                  className={cx('p-2 h-fit dark:hover:bg-zinc-700', {
-                    'bg-muted': mode === 'diff',
-                  })}
+                  className={cx(
+                    'p-2 h-fit !pointer-events-auto dark:hover:bg-zinc-700',
+                    {
+                      'bg-muted': mode === 'diff',
+                    }
+                  )}
                   onClick={() => {
                     handleVersionChange('toggle');
                   }}
+                  disabled={
+                    canvas.status === 'streaming' || currentVersionIndex === 0
+                  }
                 >
                   <DeltaIcon size={18} />
                 </Button>
