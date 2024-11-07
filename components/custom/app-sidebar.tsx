@@ -1,19 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { type User } from 'next-auth';
 
-import { PlusIcon, VercelIcon } from '@/components/custom/icons';
+import { PlusIcon } from '@/components/custom/icons';
 import { SidebarHistory } from '@/components/custom/sidebar-history';
 import { SidebarUserNav } from '@/components/custom/sidebar-user-nav';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import {
   Sidebar,
   SidebarContent,
@@ -27,6 +21,7 @@ import {
 import { BetterTooltip } from '@/components/ui/tooltip';
 
 export function AppSidebar({ user }: { user: User | undefined }) {
+  const router = useRouter();
   const { setOpenMobile } = useSidebar();
 
   return (
@@ -34,18 +29,29 @@ export function AppSidebar({ user }: { user: User | undefined }) {
       <SidebarHeader>
         <SidebarMenu>
           <div className="flex flex-row justify-between items-center">
-            <Link
-              href="/"
-              onClick={() => setOpenMobile(false)}
+            <div
+              onClick={() => {
+                setOpenMobile(false);
+                router.push('/');
+                router.refresh();
+              }}
               className="flex flex-row gap-3 items-center"
             >
-              <span className="text-lg font-semibold px-2">Chatbot</span>
-            </Link>
+              <span className="text-lg font-semibold px-2 hover:bg-muted rounded-md cursor-pointer">
+                Chatbot
+              </span>
+            </div>
             <BetterTooltip content="New Chat" align="start">
-              <Button variant="ghost" className="p-2 h-fit" asChild>
-                <Link href="/" onClick={() => setOpenMobile(false)}>
-                  <PlusIcon />
-                </Link>
+              <Button
+                variant="ghost"
+                className="p-2 h-fit"
+                onClick={() => {
+                  setOpenMobile(false);
+                  router.push('/');
+                  router.refresh();
+                }}
+              >
+                <PlusIcon />
               </Button>
             </BetterTooltip>
           </div>

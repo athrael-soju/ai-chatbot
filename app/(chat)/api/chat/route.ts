@@ -9,7 +9,7 @@ import { z } from 'zod';
 
 import { customModel } from '@/ai';
 import { models } from '@/ai/models';
-import { canvasPrompt, regularPrompt } from '@/ai/prompts';
+import { blocksPrompt, regularPrompt } from '@/ai/prompts';
 import { auth } from '@/app/(auth)/auth';
 import {
   deleteChatById,
@@ -37,7 +37,7 @@ type AllowedTools =
   | 'requestSuggestions'
   | 'getWeather';
 
-const canvasTools: AllowedTools[] = [
+const blocksTools: AllowedTools[] = [
   'createDocument',
   'updateDocument',
   'requestSuggestions',
@@ -89,11 +89,11 @@ export async function POST(request: Request) {
 
   const result = await streamText({
     model: customModel(model.apiIdentifier),
-    system: modelId === 'gpt-4o-canvas' ? canvasPrompt : regularPrompt,
+    system: modelId === 'gpt-4o-blocks' ? blocksPrompt : regularPrompt,
     messages: coreMessages,
     maxSteps: 5,
     experimental_activeTools:
-      modelId === 'gpt-4o-canvas' ? canvasTools : weatherTools,
+      modelId === 'gpt-4o-blocks' ? blocksTools : weatherTools,
     tools: {
       getWeather: {
         description: 'Get the current weather at a location',
@@ -202,6 +202,14 @@ export async function POST(request: Request) {
             model: customModel(model.apiIdentifier),
             system:
               'You are a helpful writing assistant. Based on the description, please update the piece of writing.',
+            experimental_providerMetadata: {
+              openai: {
+                prediction: {
+                  type: 'content',
+                  content: currentContent,
+                },
+              },
+            },
             messages: [
               {
                 role: 'user',
@@ -266,7 +274,7 @@ export async function POST(request: Request) {
           const { elementStream } = await streamObject({
             model: customModel(model.apiIdentifier),
             system:
-              'You are a help writing assistant. Given a piece of writing, please offer suggestions to improve the piece of writing and describe the change. It is very important for the edits to contain full sentences instead of just words.',
+              'You are a help writing assistant. Given a piece of writing, please offer suggestions to improve the piece of writing and describe the change. It is very important for the edits to contain full sentences instead of just words. Max 5 suggestions.',
             prompt: document.content,
             output: 'array',
             schema: z.object({
