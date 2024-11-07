@@ -106,12 +106,17 @@ export function Configuration({ onClose }: ConfigurationCarouselProps) {
             />
           </AnimatePresence>
         </CardContent>
-        <CardFooter className="flex justify-center">
-          {isSetupCompleted && allStepsCompleted && (
+        <CardFooter>
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="w-full"
+          >
             <Button onClick={onClose} className="w-full">
-              Finish Configuration
+              Save & Return Home
             </Button>
-          )}
+          </motion.div>
         </CardFooter>
       </Card>
     </motion.div>

@@ -25,6 +25,7 @@ import { Progress } from '@/components/ui/progress';
 
 import { Configuration } from './configuration';
 import { Knowledgebase } from './knowledgebase';
+import { Profile } from './profile';
 
 export default function Component() {
   const router = useRouter();
@@ -38,6 +39,8 @@ export default function Component() {
   const [showConfigurationCarousel, setShowConfigurationCarousel] =
     useState(false);
   const [showKnowledgebaseCarousel, setShowKnowledgebaseCarousel] =
+    useState(false);
+  const [showProfileCustomization, setShowProfileCustomization] =
     useState(false);
 
   // Setup steps
@@ -90,6 +93,8 @@ export default function Component() {
       setShowConfigurationCarousel(true);
     } else if (route === '/knowledgebase') {
       setShowKnowledgebaseCarousel(true);
+    } else if (route === '/profile') {
+      setShowProfileCustomization(true);
     } else {
       router.push(route);
     }
@@ -103,6 +108,11 @@ export default function Component() {
   const handleCloseKnowledgebaseCarousel = () => {
     setShowKnowledgebaseCarousel(false);
     setIsKnowledgebaseComplete(true);
+  };
+
+  const handleCloseProfileCustomization = () => {
+    setShowProfileCustomization(false);
+    setIsPersonalizationComplete(true);
   };
 
   return (
@@ -210,6 +220,12 @@ export default function Component() {
       <AnimatePresence>
         {showKnowledgebaseCarousel && (
           <Knowledgebase onClose={handleCloseKnowledgebaseCarousel} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showProfileCustomization && (
+          <Profile onClose={handleCloseProfileCustomization} />
         )}
       </AnimatePresence>
     </div>
