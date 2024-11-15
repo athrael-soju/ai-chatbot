@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { Toaster } from 'sonner';
 
 import { ThemeProvider } from '@/components/theme-provider';
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 import './globals.css';
 
@@ -56,7 +57,7 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased">
+      <body className="antialiased">        
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -66,6 +67,7 @@ export default async function RootLayout({
           <Toaster position="top-center" />
           {children}
         </ThemeProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
