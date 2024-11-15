@@ -1,9 +1,8 @@
-import { Metadata } from 'next';
-import NextTopLoader from 'nextjs-toploader';
+import type { Metadata } from 'next';
 import { Toaster } from 'sonner';
 
-import { ReactQueryProvider } from '@/components/custom/query-provider'; // Import the ReactQueryProvider
-import { ThemeProvider } from '@/components/custom/theme-provider';
+import { ThemeProvider } from '@/components/theme-provider';
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 import './globals.css';
 
@@ -53,24 +52,23 @@ export default async function RootLayout({
     >
       <head>
         <script
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
           dangerouslySetInnerHTML={{
             __html: THEME_COLOR_SCRIPT,
           }}
         />
       </head>
-      <body className="antialiased">
-        <NextTopLoader />
-        <ReactQueryProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Toaster position="top-center" />
-            {children}
-          </ThemeProvider>
-        </ReactQueryProvider>
+      <body className="antialiased">        
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Toaster position="top-center" />
+          {children}
+        </ThemeProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
