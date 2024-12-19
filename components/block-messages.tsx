@@ -12,10 +12,10 @@ interface BlockMessagesProps {
   votes: Array<Vote> | undefined;
   messages: Array<Message>;
   setMessages: (
-    messages: Message[] | ((messages: Message[]) => Message[]),
+    messages: Message[] | ((messages: Message[]) => Message[])
   ) => void;
   reload: (
-    chatRequestOptions?: ChatRequestOptions,
+    chatRequestOptions?: ChatRequestOptions
   ) => Promise<string | null | undefined>;
   isReadonly: boolean;
   blockStatus: UIBlock['status'];
@@ -35,7 +35,7 @@ function PureBlockMessages({
 
   return (
     <div
-      ref={messagesContainerRef}
+      ref={messagesContainerRef as React.RefObject<HTMLDivElement>}
       className="flex flex-col gap-4 h-full items-center overflow-y-scroll px-4 pt-20"
     >
       {messages.map((message, index) => (
@@ -56,7 +56,7 @@ function PureBlockMessages({
       ))}
 
       <div
-        ref={messagesEndRef}
+        ref={messagesEndRef as React.RefObject<HTMLDivElement>}
         className="shrink-0 min-w-[24px] min-h-[24px]"
       />
     </div>
@@ -65,7 +65,7 @@ function PureBlockMessages({
 
 function areEqual(
   prevProps: BlockMessagesProps,
-  nextProps: BlockMessagesProps,
+  nextProps: BlockMessagesProps
 ) {
   if (
     prevProps.blockStatus === 'streaming' &&

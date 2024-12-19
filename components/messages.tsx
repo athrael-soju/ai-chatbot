@@ -12,10 +12,10 @@ interface MessagesProps {
   votes: Array<Vote> | undefined;
   messages: Array<Message>;
   setMessages: (
-    messages: Message[] | ((messages: Message[]) => Message[]),
+    messages: Message[] | ((messages: Message[]) => Message[])
   ) => void;
   reload: (
-    chatRequestOptions?: ChatRequestOptions,
+    chatRequestOptions?: ChatRequestOptions
   ) => Promise<string | null | undefined>;
   isReadonly: boolean;
   isBlockVisible: boolean;
@@ -35,7 +35,7 @@ function PureMessages({
 
   return (
     <div
-      ref={messagesContainerRef}
+      ref={messagesContainerRef as React.RefObject<HTMLDivElement>}
       className="flex flex-col min-w-0 gap-6 flex-1 overflow-y-scroll pt-4"
     >
       {/* {messages.length === 0 && <Overview />} */}
@@ -62,7 +62,7 @@ function PureMessages({
         messages[messages.length - 1].role === 'user' && <ThinkingMessage />}
 
       <div
-        ref={messagesEndRef}
+        ref={messagesEndRef as React.RefObject<HTMLDivElement>}
         className="shrink-0 min-w-[24px] min-h-[24px]"
       />
     </div>
