@@ -32,7 +32,7 @@ export function PureMessageActions({
 
   if (isLoading) return null;
   if (message.role === 'user') return null;
-  if (message.toolInvocations && message.toolInvocations.length > 0)
+  if (message.parts && message.parts.length > 0)
     return null;
 
   return (
