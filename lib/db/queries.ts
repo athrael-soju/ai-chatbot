@@ -1,6 +1,5 @@
 import 'server-only';
 
-import { genSaltSync, hashSync } from 'bcrypt-ts';
 import { and, asc, desc, eq, gt, gte, inArray } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
@@ -26,25 +25,21 @@ import { ArtifactKind } from '@/components/artifact';
 const client = postgres(process.env.POSTGRES_URL!);
 const db = drizzle(client);
 
-export async function getUser(email: string): Promise<Array<User>> {
+export async function getUser(email: string): Promise<Array<string>> {
   try {
-    return await db.select().from(user).where(eq(user.email, email));
+    const users = await db
+      .select({ id: user.id })
+      .from(user)
+      .where(eq(user.email, email));
+
+    return users.map((user) => user.id);
   } catch (error) {
     console.error('Failed to get user from database');
     throw error;
   }
 }
-
-export async function createUser(email: string, password: string) {
-  const salt = genSaltSync(10);
-  const hash = hashSync(password, salt);
-
-  try {
-    return await db.insert(user).values({ email, password: hash });
-  } catch (error) {
-    console.error('Failed to create user in database');
-    throw error;
-  }
+export async function createSSOUser(id: string, email: string, name: string, password: string = 'N/A') {
+  return await db.insert(user).values({ id, email, name, password });
 }
 
 export async function saveChat({
